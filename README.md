@@ -17,6 +17,7 @@
             background-size: 20px 20px, cover, cover; 
             background-attachment: fixed; 
             color: #4a4a4a; 
+            scroll-behavior: smooth;
         }
         header {
             background: rgba(255, 179, 186, 0.9); color: #fff; padding: 1rem; text-align: center; border-radius: 0 0 20px 20px; 
@@ -39,7 +40,6 @@
         .art-piece img { width: 100%; height: 200px; object-fit: cover; border: 2px solid #ffb3ba; border-radius: 10px; cursor: zoom-in; transition: transform 0.3s; }
         .art-piece img:hover { transform: scale(1.02); }
         
-        /* POPUP MODAL STYLES */
         .modal {
             display: none;
             position: fixed;
@@ -113,12 +113,12 @@
             <a href="#custom-order">Customized Art</a>
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
-            <a href="#cart">Cart</a>
+            <a href="#cart-section">Cart</a>
         </nav>
         <div class="top-controls">
             <input type="text" id="searchInput" placeholder="Search art...">
             <button id="listViewBtn">📋 List View</button>
-            <button id="cartBtn">🛒 Cart (<span id="cartCount">0</span>)</button>
+            <button id="cartHeaderBtn">🛒 Cart (<span id="cartCount">0</span>)</button>
         </div>
     </header>
 
@@ -178,6 +178,14 @@
         </a>
     </section>
 
+    <section id="cart-section" class="cart">
+        <h2>Your Shopping Cart</h2>
+        <div id="cartItems"></div>
+        <p><strong>Total: RS. <span id="cartTotal">0</span></strong></p>
+        <button onclick="checkout()" style="width: 100%; padding: 10px; background: #e91e63; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">Checkout via WhatsApp</button>
+        <p style="text-align:center; margin-top:1rem; font-weight:bold; color:#e91e63;">Thank you for shopping, visit again 💖</p>
+    </section>
+
     <section id="about" class="about">
         <h2>About Us</h2>
         <p>We showcase contemporary art from emerging and established artists. Our showroom features paintings, sculptures, and digital works.</p>
@@ -197,14 +205,6 @@
         </form>
     </section>
 
-    <section id="cart" class="cart">
-        <h2>Your Shopping Cart</h2>
-        <div id="cartItems"></div>
-        <p><strong>Total: RS. <span id="cartTotal">0</span></strong></p>
-        <button onclick="checkout()" style="width: 100%; padding: 10px; background: #e91e63; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">Checkout via WhatsApp</button>
-        <p style="text-align:center; margin-top:1rem; font-weight:bold; color:#e91e63;">Thank you for shopping, visit again 💖</p>
-    </section>
-
     <section id="showcase" class="showcase">
         <h2>Art Showcase 🎨</h2>
         <div class="slideshow">
@@ -220,7 +220,7 @@
     </footer>
 
     <script>
-        // NEW: ZOOM FUNCTIONS
+        // ZOOM FUNCTIONS
         function openZoom(imgSrc) {
             document.getElementById("imageModal").style.display = "flex";
             document.getElementById("zoomedImg").src = imgSrc;
@@ -230,7 +230,11 @@
             document.getElementById("imageModal").style.display = "none";
         }
 
-        // ORIGINAL LOGIC (Remains exactly as you had it)
+        // CART SCROLL FUNCTION
+        document.getElementById('cartHeaderBtn').addEventListener('click', function() {
+            document.getElementById('cart-section').scrollIntoView({ behavior: 'smooth' });
+        });
+
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         updateCartDisplay();
 
@@ -255,6 +259,8 @@
             const cartItems = document.getElementById('cartItems');
             const cartTotal = document.getElementById('cartTotal');
             const cartCount = document.getElementById('cartCount');
+            if(!cartItems || !cartTotal || !cartCount) return;
+
             cartItems.innerHTML = '';
             let total = 0, count = 0;
             cart.forEach((item, index) => {
@@ -290,14 +296,18 @@
             updateCartDisplay();
         }
 
+        // SLIDESHOW
         let slideIndex = 0;
         const slides = document.querySelectorAll('.slideshow img');
-        setInterval(() => {
-            slides[slideIndex].classList.remove('active');
-            slideIndex = (slideIndex + 1) % slides.length;
-            slides[slideIndex].classList.add('active');
-        }, 3000);
+        if(slides.length > 0) {
+            setInterval(() => {
+                slides[slideIndex].classList.remove('active');
+                slideIndex = (slideIndex + 1) % slides.length;
+                slides[slideIndex].classList.add('active');
+            }, 3000);
+        }
 
+        // SEARCH
         document.getElementById('searchInput').addEventListener('input', function() {
             const query = this.value.toLowerCase();
             document.querySelectorAll('.art-piece').forEach(piece => {
@@ -306,6 +316,7 @@
             });
         });
 
+        // VIEW TOGGLE
         document.getElementById('listViewBtn').addEventListener('click', function() {
             const gallery = document.querySelector('.gallery');
             gallery.classList.toggle('list-view');
